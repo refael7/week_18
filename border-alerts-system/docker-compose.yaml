@@ -1,4 +1,4 @@
-
+ 
 services:
   mongo:
     image: mongo:7
@@ -28,28 +28,7 @@ services:
     networks:
       - app-network
 
-  consumer:
-    build:
-      context: .
-      dockerfile: consumer/Dockerfile
-    restart: "no"
-    depends_on:
-      - redis
-      - producer
-    networks:
-      - app-network
-
-  analytics-api:
-    build:
-      context: .
-      dockerfile: analytics-api/Dockerfile
-    restart: "no"
-    depends_on:
-      - redis
-      - producer
-      - consumer
-    networks:
-      - app-network
+ 
   mongo-express:
     image: mongo-express:1.0.2
     restart: unless-stopped
@@ -80,4 +59,4 @@ volumes:
 
 networks:
   app-network:
-    driver: bridge
+ 
