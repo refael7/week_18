@@ -1,62 +1,54 @@
- 
 services:
-  mongo:
+
+  mongodb:
     image: mongo:7
-    restart: unless-stopped
     ports:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
-    networks:
-      - app-network
+    environment:
+      MONGO_DB: week18_redis
+
 
   redis:
     image: redis:7
-    restart: unless-stopped
     ports:
       - "6379:6379"
-    networks:
-      - app-network
+    volumes:
+      - redis_data:/data
+
 
   producer:
-    build:
-      context: .
-      dockerfile: producer/Dockerfile
-    restart: "no"
-    depends_on:
-      - redis
-    networks:
-      - app-network
-
- 
-  mongo-express:
-    image: mongo-express:1.0.2
-    restart: unless-stopped
-    ports:
-      - "18081:8081"
+    build: producer
     environment:
-      ME_CONFIG_MONGODB_SERVER: mongo
-      ME_CONFIG_MONGODB_ENABLE_LOGIN: "false"
-      ME_CONFIG_BASICAUTH: "false"
-    depends_on:
-      - mongo
-    networks:
-      - app-network
-
-
-  redisinsight:
-    image: redis/redisinsight:latest
-    restart: unless-stopped
-    ports:
-      - "5540:5540"
+      - MONGO_URI=mongodb://mongodb:27017
+      - REDIS_HOST=redis
     depends_on:
       - redis
-    networks:
-      - app-network
+
+  consumer:
+    build: consumer
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017
+      - REDIS_HOST=redis
+    depends_on:
+      - redis
+      - mongodb
+
+
+  api:
+    build: analytics-api
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017
+      - REDIS_HOST=redis
+    depends_on:
+      - mongodb
+      - redis
+
 
 volumes:
   mongo_data:
-
-networks:
-  app-network:
+  redis_data:
  
