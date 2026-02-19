@@ -1,4 +1,13 @@
-FROM ubuntu:latest
-LABEL authors="refae"
+FROM python:3.12-slim
 
-ENTRYPOINT ["top", "-b"]
+WORKDIR /app
+
+COPY producer/requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY producer/ ./
+
+COPY data/ ./data/
+
+CMD ["python", "main.py"]
